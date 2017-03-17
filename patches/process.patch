@@ -1,7 +1,7 @@
-diff --git a/System/Process.hsc b/System/Process.hsc
-index 37d442f..541497f 100644
---- a/System/Process.hsc
-+++ b/System/Process.hsc
+diff --git a/System/Process.hs b/System/Process.hs
+index aec8786..b425db3 100644
+--- a/System/Process.hs
++++ b/System/Process.hs
 @@ -6,6 +6,10 @@
  #endif
  {-# LANGUAGE InterruptibleFFI #-}
@@ -45,7 +45,7 @@ index 37d442f..541497f 100644
  -- ----------------------------------------------------------------------------
  -- Old deprecated variants
 diff --git a/System/Process/Common.hs b/System/Process/Common.hs
-index 0c55ff1..c09a446 100644
+index 4b18eb8..70ef3cf 100644
 --- a/System/Process/Common.hs
 +++ b/System/Process/Common.hs
 @@ -52,6 +52,9 @@ import System.Win32.DebugApi (PHANDLE)
@@ -58,17 +58,17 @@ index 0c55ff1..c09a446 100644
  #ifdef WINDOWS
  -- Define some missing types for Windows compatibility. Note that these values
  -- will never actually be used, as the setuid/setgid system calls are not
-@@ -62,7 +65,7 @@ type UserID = CGid
+@@ -63,7 +66,7 @@ type UserID = CGid
  #else
  type PHANDLE = CPid
  #endif
 -
 +#endif
  data CreateProcess = CreateProcess{
-   cmdspec      :: CmdSpec,                 -- ^ Executable & arguments, or shell command
+   cmdspec      :: CmdSpec,                 -- ^ Executable & arguments, or shell command.  Relative paths are resolved with respect to 'cwd' if given, and otherwise the current working directory.
    cwd          :: Maybe FilePath,          -- ^ Optional path to the working directory for the new process
 diff --git a/System/Process/Internals.hs b/System/Process/Internals.hs
-index c4d5be3..ec2b52f 100644
+index af42009..658fc70 100644
 --- a/System/Process/Internals.hs
 +++ b/System/Process/Internals.hs
 @@ -3,6 +3,10 @@
@@ -174,7 +174,7 @@ index c4d5be3..ec2b52f 100644
 +    else (\(x:xs) -> (x,xs)) <$> fromJSStrings r
 +
 +#else
- #if WINDOWS
+ #ifdef WINDOWS
  import System.Process.Windows
  #else
  import System.Process.Posix
@@ -301,10 +301,10 @@ index c4d5be3..ec2b52f 100644
  -- Deprecated / compat
  
 diff --git a/process.cabal b/process.cabal
-index 15f6a65..a944525 100644
+index b25c4a2..719524d 100644
 --- a/process.cabal
 +++ b/process.cabal
-@@ -71,6 +71,9 @@ library
+@@ -73,6 +73,9 @@ library
                     filepath  >= 1.2 && < 1.5,
                     deepseq   >= 1.1 && < 1.5
  
