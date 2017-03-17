@@ -273,7 +273,7 @@ index 5a48a9e..33ea67b 100644
 +mkCodePageEncoding = ""
 +#endif
 diff --git a/boot/base/GHC/IO/FD.hs b/boot/base/GHC/IO/FD.hs
-index eb7b80b..fc9c084 100644
+index bb2cdb8..5b300aa 100644
 --- a/boot/base/GHC/IO/FD.hs
 +++ b/boot/base/GHC/IO/FD.hs
 @@ -497,6 +497,10 @@ indicates that there's no data, we call threadWaitRead.
@@ -558,7 +558,7 @@ index 8b6c7b6..406d508 100644
 +##endif
 \ No newline at end of file
 diff --git a/boot/base/System/Posix/Internals.hs b/boot/base/System/Posix/Internals.hs
-index 66e9304..f710e08 100644
+index 7bb26fa..daaa689 100644
 --- a/boot/base/System/Posix/Internals.hs
 +++ b/boot/base/System/Posix/Internals.hs
 @@ -1,6 +1,9 @@
@@ -606,33 +606,29 @@ index 66e9304..f710e08 100644
  foreign import ccall unsafe "HsBase.h __hscore_open"
     c_open :: CFilePath -> CInt -> CMode -> IO CInt
  
-@@ -363,6 +367,7 @@ foreign import ccall unsafe "HsBase.h __hscore_fstat"
+@@ -363,6 +367,8 @@ foreign import ccall unsafe "HsBase.h __hscore_fstat"
  
  foreign import ccall unsafe "HsBase.h __hscore_lstat"
     lstat :: CFilePath -> Ptr CStat -> IO CInt
 +#endif
++
  
  {- Note: Win32 POSIX functions
  Functions that are not part of the POSIX standards were
-@@ -379,7 +384,7 @@ being done. See #11223
- See https://msdn.microsoft.com/en-us/library/ms235384.aspx
- for more.
+@@ -382,6 +388,7 @@ for more.
+ However since we can't hope to get people to support Windows
+ packages we should support the deprecated names. See #12497
  -}
--#if defined(mingw32_HOST_OS)
-+#if defined(mingw32_HOST_OS) && !defined(ghcjs_HOST_OS)
- foreign import ccall unsafe "io.h _lseeki64"
-    c_lseek :: CInt -> Int64 -> CInt -> IO Int64
- 
-@@ -438,9 +443,144 @@ foreign import ccall unsafe "HsBase.h _getpid"
- -- We use CAPI as on some OSs (eg. Linux) this is wrapped by a macro
- -- which redirects to the 64-bit-off_t versions when large file
- -- support is enabled.
 +#if !defined(ghcjs_HOST_OS)
  foreign import capi unsafe "unistd.h lseek"
     c_lseek :: CInt -> COff -> CInt -> IO COff
-+#endif
  
-+#ifdef ghcjs_HOST_OS
+@@ -588,7 +595,140 @@ foreign import ccall unsafe "__hscore_bufsiz"  dEFAULT_BUFFER_SIZE :: Int
+ foreign import capi  unsafe "stdio.h value SEEK_CUR" sEEK_CUR :: CInt
+ foreign import capi  unsafe "stdio.h value SEEK_SET" sEEK_SET :: CInt
+ foreign import capi  unsafe "stdio.h value SEEK_END" sEEK_END :: CInt
++#else
++-- ghcjs_HOST_OS versions
 +
 +foreign import javascript interruptible "h$base_access($1_1,$1_2,$2,$c);"
 +    c_access :: CString -> CInt -> IO CInt
@@ -677,7 +673,7 @@ index 66e9304..f710e08 100644
 +foreign import javascript unsafe "$r = h$base_getpid();"
 +   c_getpid :: IO CPid
 +-- foreign import ccall unsafe "HsBase.h fork"
-+--   c_fork :: IO CPid 
++--   c_fork :: IO CPid
 +foreign import javascript interruptible "h$base_link($1_1,$1_2,$2_1,$2_2,$c);"
 +   c_link :: CString -> CString -> IO CInt
 +foreign import javascript interruptible "h$base_mkfifo($1_1,$1_2,$2,$c);"
@@ -726,7 +722,7 @@ index 66e9304..f710e08 100644
 +s_isdir cm = c_s_isdir cm /= 0
 +s_isfifo :: CMode -> Bool
 +s_isfifo cm = c_s_isfifo cm /= 0
-+
+ 
 +foreign import javascript unsafe "$r = h$base_sizeof_stat;" sizeof_stat :: Int
 +foreign import javascript unsafe "h$base_st_mtime($1_1,$1_2)" st_mtime :: Ptr CStat -> IO CTime
 +foreign import javascript unsafe "$r1 = h$base_st_size($1_1,$1_2); $r2 = h$ret1;" st_size :: Ptr CStat -> IO Int64
@@ -764,45 +760,10 @@ index 66e9304..f710e08 100644
 +foreign import javascript unsafe "$r = h$base_c_fcntl_write($1,$2,$3);"       c_fcntl_write :: CInt -> CInt -> CLong -> IO CInt
 +foreign import javascript unsafe "$r = h$base_c_fcntl_lock($1,$2,$3_1,$3_2);" c_fcntl_lock  :: CInt -> CInt -> Ptr CFLock -> IO CInt
 +
-+#else
- foreign import ccall unsafe "HsBase.h access"
-    c_access :: CString -> CInt -> IO CInt
- 
-@@ -494,13 +634,15 @@ foreign import ccall unsafe "HsBase.h getpid"
-    c_getpid :: IO CPid
- #endif
- 
-+#if !defined(ghcjs_HOST_OS)
- foreign import ccall unsafe "HsBase.h __hscore_stat"
-    c_stat :: CFilePath -> Ptr CStat -> IO CInt
- 
- foreign import ccall unsafe "HsBase.h __hscore_ftruncate"
-    c_ftruncate :: CInt -> COff -> IO CInt
 +#endif
- 
--#if !defined(mingw32_HOST_OS)
-+#if !defined(mingw32_HOST_OS) && !defined(ghcjs_HOST_OS)
- foreign import capi unsafe "HsBase.h fcntl"
-    c_fcntl_read  :: CInt -> CInt -> IO CInt
- 
-@@ -541,6 +683,7 @@ foreign import ccall unsafe "HsBase.h waitpid"
-    c_waitpid :: CPid -> Ptr CInt -> CInt -> IO CPid
- #endif
- 
-+#if !defined(ghcjs_HOST_OS)
- -- POSIX flags only:
- foreign import ccall unsafe "HsBase.h __hscore_o_rdonly" o_RDONLY :: CInt
- foreign import ccall unsafe "HsBase.h __hscore_o_wronly" o_WRONLY :: CInt
-@@ -617,6 +760,9 @@ foreign import ccall unsafe "__hscore_bufsiz"  dEFAULT_BUFFER_SIZE :: Int
- foreign import capi  unsafe "stdio.h value SEEK_CUR" sEEK_CUR :: CInt
- foreign import capi  unsafe "stdio.h value SEEK_SET" sEEK_SET :: CInt
- foreign import capi  unsafe "stdio.h value SEEK_END" sEEK_END :: CInt
-+#endif
-+
-+#endif
- 
  {-
- Note: CSsize
+ Note: Windows types
+ 
 diff --git a/boot/base/System/Timeout.hs b/boot/base/System/Timeout.hs
 index c20950f..31f3b6f 100644
 --- a/boot/base/System/Timeout.hs
@@ -826,7 +787,7 @@ index c20950f..31f3b6f 100644
          -- In the threaded RTS, we use the Timer Manager to delay the
          -- (fairly expensive) 'forkIO' call until the timeout has expired.
 diff --git a/boot/base/base.cabal b/boot/base/base.cabal
-index b5fa910..ea769d2 100644
+index 5a68ba3..a4c6f35 100644
 --- a/boot/base/base.cabal
 +++ b/boot/base/base.cabal
 @@ -50,7 +50,7 @@ Flag integer-simple
