@@ -1,14 +1,14 @@
 diff --git a/System/Process.hs b/System/Process.hs
-index aec8786..b425db3 100644
+index aec8786..1044c4e 100644
 --- a/System/Process.hs
 +++ b/System/Process.hs
 @@ -6,6 +6,10 @@
  #endif
  {-# LANGUAGE InterruptibleFFI #-}
  
-+##ifdef ghcjs_HOST_OS
++#ifdef ghcjs_HOST_OS
 +{-# LANGUAGE JavaScriptFFI #-}
-+##endif
++#endif
 +
  -----------------------------------------------------------------------------
  -- |
@@ -17,7 +17,7 @@ index aec8786..b425db3 100644
  -- ----------------------------------------------------------------------------
  -- Interface to C bits
  
-+##if defined(ghcjs_HOST_OS)
++#if defined(ghcjs_HOST_OS)
 +
 +foreign import javascript unsafe
 +  "h$process_terminateProcess($1)"
@@ -31,7 +31,7 @@ index aec8786..b425db3 100644
 +  "h$process_waitForProcess($1,$2_1,$2_2,$c);"
 +  c_waitForProcess :: PHANDLE -> Ptr CInt -> IO CInt
 +
-+##else
++#else
 +
  foreign import ccall unsafe "terminateProcess"
    c_terminateProcess
@@ -40,7 +40,7 @@ index aec8786..b425db3 100644
          -> Ptr CInt
          -> IO CInt
  
-+##endif
++#endif
  
  -- ----------------------------------------------------------------------------
  -- Old deprecated variants
