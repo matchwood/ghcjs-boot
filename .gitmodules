@@ -12,7 +12,7 @@
 	url = https://github.com/ghc/packages-containers.git
 [submodule "ghcjs/ghcjs-base"]
 	path = ghcjs/ghcjs-base
-	url = https://github.com/ghcjs/ghcjs-base.git
+	url = https://github.com/matchwood/ghcjs-base.git
 [submodule "boot/directory"]
 	path = boot/directory
 	url = http://git.haskell.org/packages/directory.git/
@@ -108,13 +108,13 @@
 	url = https://github.com/ghcjs/ghcjs-node.git
 [submodule "boot/base-compat"]
 	path = boot/base-compat
-	url = git@github.com:haskell-compat/base-compat.git
+	url = https://github.com/haskell-compat/base-compat.git
 [submodule "boot/integer-logarithms"]
 	path = boot/integer-logarithms
-	url = git@github.com:Bodigrim/integer-logarithms.git
+	url = https://github.com/Bodigrim/integer-logarithms.git
 [submodule "boot/transformers-compat"]
 	path = boot/transformers-compat
-	url = git@github.com:ekmett/transformers-compat.git
+	url = https://github.com/ekmett/transformers-compat.git
 [submodule "boot/time-locale-compat"]
 	path = boot/time-locale-compat
-	url = git@github.com:khibino/haskell-time-locale-compat.git
+	url = https://github.com/khibino/haskell-time-locale-compat.git
