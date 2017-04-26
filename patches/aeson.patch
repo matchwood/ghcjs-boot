@@ -1,0 +1,15 @@
+diff --git a/aeson.cabal b/aeson.cabal
+index 8a735fd..8085290 100644
+--- a/aeson.cabal
++++ b/aeson.cabal
+@@ -75,8 +75,8 @@ flag bytestring-builder
+ 
+ flag cffi
+   description: Controls whether to include c-ffi bits or pure haskell
+-  default: True
+-  manual: True
++  default: False
++  manual: False
+ 
+ library
+   default-language: Haskell2010
