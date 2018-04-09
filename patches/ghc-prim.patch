@@ -1,5 +1,5 @@
 diff --git a/boot/ghc-prim/Setup.hs b/boot/ghc-prim/Setup.hs
-index 5bb17e2..56bd040 100644
+index 5bb17e2..821a534 100644
 --- a/boot/ghc-prim/Setup.hs
 +++ b/boot/ghc-prim/Setup.hs
 @@ -6,21 +6,29 @@ module Main (main) where
@@ -32,7 +32,7 @@ index 5bb17e2..56bd040 100644
                    buildHook = build_primitive_sources
                              $ buildHook simpleUserHooks,
                    haddockHook = addPrimModuleForHaddock
-@@ -58,31 +66,55 @@ addPrimModuleToPD pd =
+@@ -58,31 +66,53 @@ addPrimModuleToPD pd =
  
  build_primitive_sources :: Hook a -> Hook a
  build_primitive_sources f pd lbi uhs x
@@ -83,7 +83,7 @@ index 5bb17e2..56bd040 100644
 +    then removeFile source
 +    else do doesFileExist target >>= flip when (removeFile target)
 +            renameFile source target
-+
+ 
 +myInstHook :: PackageDescription -> LocalBuildInfo
 +                   -> UserHooks -> InstallFlags -> IO ()
 +myInstHook pkg_descr localbuildinfo uh flags = do
@@ -101,8 +101,7 @@ index 5bb17e2..56bd040 100644
 +                      }
 +  when (hasLibs pkg_descr) $ addPrimModule (\pd lbi _ -> register pd lbi)
 +     pkg_descr localbuildinfo uh registerFlags
-+
- 
+\ No newline at end of file
 diff --git a/boot/ghc-prim/ghc-prim.cabal b/boot/ghc-prim/ghc-prim.cabal
 index f42fa64..8287b25 100644
 --- a/boot/ghc-prim/ghc-prim.cabal
