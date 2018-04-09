@@ -1,14 +1,14 @@
-diff --git a/System/Process.hsc b/System/Process.hsc
-index 37d442f..541497f 100644
---- a/System/Process.hsc
-+++ b/System/Process.hsc
+diff --git a/System/Process.hs b/System/Process.hs
+index aec8786..4652534 100644
+--- a/System/Process.hs
++++ b/System/Process.hs
 @@ -6,6 +6,10 @@
  #endif
  {-# LANGUAGE InterruptibleFFI #-}
  
-+##ifdef ghcjs_HOST_OS
++#ifdef ghcjs_HOST_OS
 +{-# LANGUAGE JavaScriptFFI #-}
-+##endif
++#endif
 +
  -----------------------------------------------------------------------------
  -- |
@@ -17,7 +17,7 @@ index 37d442f..541497f 100644
  -- ----------------------------------------------------------------------------
  -- Interface to C bits
  
-+##if defined(ghcjs_HOST_OS)
++#if defined(ghcjs_HOST_OS)
 +
 +foreign import javascript unsafe
 +  "h$process_terminateProcess($1)"
@@ -31,21 +31,22 @@ index 37d442f..541497f 100644
 +  "h$process_waitForProcess($1,$2_1,$2_2,$c);"
 +  c_waitForProcess :: PHANDLE -> Ptr CInt -> IO CInt
 +
-+##else
++#else
 +
  foreign import ccall unsafe "terminateProcess"
    c_terminateProcess
          :: PHANDLE
-@@ -691,6 +711,7 @@ foreign import ccall interruptible "waitForProcess" -- NB. safe - can block
+@@ -691,6 +711,8 @@ foreign import ccall interruptible "waitForProcess" -- NB. safe - can block
          -> Ptr CInt
          -> IO CInt
  
-+##endif
++#endif
++
  
  -- ----------------------------------------------------------------------------
  -- Old deprecated variants
 diff --git a/System/Process/Common.hs b/System/Process/Common.hs
-index 0c55ff1..c09a446 100644
+index 4b18eb8..70ef3cf 100644
 --- a/System/Process/Common.hs
 +++ b/System/Process/Common.hs
 @@ -52,6 +52,9 @@ import System.Win32.DebugApi (PHANDLE)
@@ -58,17 +59,17 @@ index 0c55ff1..c09a446 100644
  #ifdef WINDOWS
  -- Define some missing types for Windows compatibility. Note that these values
  -- will never actually be used, as the setuid/setgid system calls are not
-@@ -62,7 +65,7 @@ type UserID = CGid
+@@ -63,7 +66,7 @@ type UserID = CGid
  #else
  type PHANDLE = CPid
  #endif
 -
 +#endif
  data CreateProcess = CreateProcess{
-   cmdspec      :: CmdSpec,                 -- ^ Executable & arguments, or shell command
+   cmdspec      :: CmdSpec,                 -- ^ Executable & arguments, or shell command.  Relative paths are resolved with respect to 'cwd' if given, and otherwise the current working directory.
    cwd          :: Maybe FilePath,          -- ^ Optional path to the working directory for the new process
 diff --git a/System/Process/Internals.hs b/System/Process/Internals.hs
-index c4d5be3..934133b 100644
+index af42009..6f3a94b 100644
 --- a/System/Process/Internals.hs
 +++ b/System/Process/Internals.hs
 @@ -3,6 +3,10 @@
@@ -91,7 +92,7 @@ index c4d5be3..934133b 100644
      pPrPr_disableITimers, c_execvpe,
      ignoreSignal, defaultSignal,
  #endif
-@@ -50,12 +54,91 @@ import System.Posix.Internals (FD)
+@@ -50,12 +54,92 @@ import System.Posix.Internals (FD)
  
  import System.Process.Common
  
@@ -174,7 +175,8 @@ index c4d5be3..934133b 100644
 +    else (\(x:xs) -> (x,xs)) <$> fromJSStrings r
 +
 +#else
- #if WINDOWS
++
+ #ifdef WINDOWS
  import System.Process.Windows
  #else
  import System.Process.Posix
@@ -184,7 +186,7 @@ index c4d5be3..934133b 100644
  -- ----------------------------------------------------------------------------
  
  -- | This function is almost identical to
-@@ -75,8 +158,69 @@ createProcess_
+@@ -75,8 +159,69 @@ createProcess_
    :: String                     -- ^ function name (for error messages)
    -> CreateProcess
    -> IO (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
@@ -254,9 +256,9 @@ index c4d5be3..934133b 100644
  
  -- ------------------------------------------------------------------------
  -- Escaping commands for shells
-@@ -138,6 +282,46 @@ translate = translateInternal
+@@ -137,6 +282,45 @@ translate :: String -> String
+ translate = translateInternal
  {-# INLINE translate #-}
- 
  
 +#if defined(ghcjs_HOST_OS)
 +
@@ -297,15 +299,14 @@ index c4d5be3..934133b 100644
 +  "h$process_commandToProcess($1,$2)"
 +  js_commandToProcess :: JSString -> JSArray -> IO JSArray
 +#endif
-+
+ 
  -- ----------------------------------------------------------------------------
  -- Deprecated / compat
- 
 diff --git a/process.cabal b/process.cabal
-index 15f6a65..a944525 100644
+index b25c4a2..719524d 100644
 --- a/process.cabal
 +++ b/process.cabal
-@@ -71,6 +71,9 @@ library
+@@ -73,6 +73,9 @@ library
                     filepath  >= 1.2 && < 1.5,
                     deepseq   >= 1.1 && < 1.5
  
