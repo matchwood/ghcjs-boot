@@ -4,8 +4,8 @@ index 331ae81..0c75d25 100644
 +++ b/System/FilePath.hs
 @@ -20,7 +20,10 @@ functions.
  -}
- 
- 
+
+
 -#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 +#if defined(ghcjs_HOST_OS)
 +module System.FilePath (module System.FilePath.Current) where
@@ -41,23 +41,23 @@ index 34cc156..e75dc70 100644
  module System.FilePath.MODULE_NAME
      (
 +    isWindows, isPosix,
-+    
++
      -- * Separator predicates
      FilePath,
      pathSeparator, pathSeparators, isPathSeparator,
 @@ -124,8 +128,13 @@ isPosix = not isWindows
- 
+
  -- | Is the operating system Windows like
  isWindows :: Bool
 -isWindows = IS_WINDOWS
 +#ifdef IS_CURRENT
 +isWindows = js_isWindows
- 
+
 +foreign import javascript unsafe "h$filepath_isWindows()" js_isWindows :: Bool
 +#else
 +isWindows = IS_WINDOWS
 +#endif
- 
+
  ---------------------------------------------------------------------
  -- The basic functions
 diff --git a/filepath.cabal b/filepath.cabal
@@ -71,6 +71,6 @@ index 9c0a457..0b2d81d 100644
 +    if impl(GHCJS>=0.1)
 +        Exposed-modules:
 +            System.FilePath.Current
- 
+
      build-depends:
          base >= 4 && < 4.10
